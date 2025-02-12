@@ -78,6 +78,10 @@ def halferror(x,xerr):
 
 file_name = args.data_file
 dir = args.in_dir
+imgs_dir = args.output_dir + "/"   #Add trailing slash so that it doens't matter if use provides it or not
+
+if not os.path.exists(imgs_dir) and imgs_dir != "":
+    os.makedirs(imgs_dir)
 
 #For showing ricardo the data run 1 was MidV1, run 2 was MidV2, and run3 was MaxV1
 df = pd.read_csv(dir+file_name, delimiter="\t", usecols=(2,3,4,7,8,9))
@@ -94,36 +98,38 @@ df["TimeL"] = df["TimeL"] - args.spill_time_start #44.66
 num_bins = args.num_bins
 
 binwidth = args.run_length/num_bins
-#fitting the background to a constant and then subtracting it from the data for scaling purposes
-values,bins,params = plt.hist(df["TimeL"], bins=num_bins, fill=False, ec="C0")
-values = np.array(values)
-bins = np.array(bins)
-bin_centers = 0.5*(bins[1:] + bins[:-1])
 
-values_const = values[(bin_centers <= -1)]
-bin_centers_const = bin_centers[(bin_centers <= -1)]
-c = cost.LeastSquares(bin_centers_const, values_const,np.sqrt(values_const), Constant)
-fitter = Minuit(c,A=100)
-fitter.limits = [(0,None)]
-fitter.migrad()
-fitter.hesse()
-y_shift = fitter.values["A"]
-print("Constant Background Fit")
-print(fitter.values)
-print(fitter.errors)
-print(fitter.fval /(len(bins) - 2) )
-# bounds = list(ax.get_xlim())
-# leftbound = bounds[0]
-# rightbound = bounds[0]
-plt.figure(figsize=(20, 9))
-plt.xlim(-30,200)
-plt.ylim(0,4000)
-x_f = np.linspace(-5,0,len(values_const))
-plt.plot(x_f, Constant(x_f, *fitter.values))
-plt.savefig("FirstImage.png")     #I have no clue what this plot is supposed to be
-plt.close()
-#print("Minuit isn't robust enough for you to set a value, put it in the big fitting function")
+if args.create_first_plot:
+    ### TODO: Fix this code
+    #fitting the background to a constant and then subtracting it from the data for scaling purposes
+    values,bins,params = plt.hist(df["TimeL"], bins=num_bins, fill=False, ec="C0")
+    values = np.array(values)
+    bins = np.array(bins)
+    bin_centers = 0.5*(bins[1:] + bins[:-1])
 
+    values_const = values[(bin_centers <= -1)]
+    bin_centers_const = bin_centers[(bin_centers <= -1)]
+    c = cost.LeastSquares(bin_centers_const, values_const,np.sqrt(values_const), Constant)
+    fitter = Minuit(c,A=100)
+    fitter.limits = [(0,None)]
+    fitter.migrad()
+    fitter.hesse()
+    y_shift = fitter.values["A"]
+    print("Constant Background Fit")
+    print(fitter.values)
+    print(fitter.errors)
+    print(fitter.fval /(len(bins) - 2) )
+    # bounds = list(ax.get_xlim())
+    # leftbound = bounds[0]
+    # rightbound = bounds[0]
+    plt.figure(figsize=(20, 9))
+    plt.xlim(-30,200)
+    plt.ylim(0,4000)
+    x_f = np.linspace(-5,0,len(values_const))
+    plt.plot(x_f, Constant(x_f, *fitter.values))
+    plt.savefig(f'{imgs_dir}FirstImage.png')     #I have no clue what this plot is supposed to be
+    plt.close()
+    #print("Minuit isn't robust enough for you to set a value, put it in the big fitting function")
 
 # Set figure size (width, height)
 fig_width = 20
@@ -272,7 +278,7 @@ ax.text(0.05, title_y, args.run_config.replace("_", " "), fontsize=35, transform
 
 ax.set_xlim(0, max(bins) * 1.01) #go 1% past the last bin
 if args.run_end_time > 0.0:
-    ax.set_xlim(0, args.run_end_time - args.split_time_start)
+    ax.set_xlim(0, args.run_end_time)
 
 plt.tick_params(axis='both', which='major', labelsize=20)
 
@@ -283,5 +289,6 @@ if args.fit_function != "":
 
 config_filename = args.run_config.replace(" ", "_")
 
-plt.savefig(f'PES_Activity_Fit_{config_filename}_{fit_name}.png')
-plt.savefig(f'PES_Activity_Fit_{config_filename}_{fit_name}.pdf')
+
+plt.savefig(f'{imgs_dir}PES_Activity_Fit_{config_filename}_{fit_name}.png')
+plt.savefig(f'{imgs_dir}PES_Activity_Fit_{config_filename}_{fit_name}.pdf')

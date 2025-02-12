@@ -20,19 +20,19 @@ def parse_arguments():
     fit_args.add_argument("--spill_time_start", type=float, default=39.9248759449842,
                           help="Start of the spill time within the run (sec)")
     
-    fit_args.add_argument("--run_length", type=float, default=600.0,
+    fit_args.add_argument("-rl", "--run_length", type=float, default=600.0,
                          help="Length of the run in seconds; default 600s")
     
     fit_args.add_argument("-n", "--num_bins", type=int, default=100,
                          help="Number of bins to use in NAME OF PLOT; default 100")
     
-    fit_args.add_argument("--fit_function", type=str, default="",
+    fit_args.add_argument("-ff", "--fit_function", type=str, default="",
                             help="Function to fit the data to. Prefer to specify isotopes, and only use this if you need to avoid that; default to empty string")
     
-    fit_args.add_argument("--fit_isotopes", type=parse_comma_separated_list, default=["Cu58","Cu62","Cu59"],
+    fit_args.add_argument("-fi", "--fit_isotopes", type=parse_comma_separated_list, default=["Cu58","Cu62","Cu59"],
                             help="Positron emitting isotopes to fit the data to; default Cu58 Cu62 Cu59")
     
-    fit_args.add_argument("--run_config", type=str, default="Ni (21 cm)",
+    fit_args.add_argument("-rcfg", "--run_config", type=str, default="Ni (21 cm)",
                           help="Configuration of the run; default Ni (21 cm)")
     
     fit_args.add_argument("--initial_fit_params", type=parse_comma_separated_list, default=[""],
@@ -44,13 +44,19 @@ def parse_arguments():
     fit_args.add_argument("--run_end_time", type=float, default=-1.0,
                             help="Time after run start to consider in fit; defaults to looking at all data after the spill time start")
 
+    fit_args.add_argument("--create_first_plot", type=bool, default=False,
+                            help="Decides whether to create the first plot (to be elaborated on). Defaults to False until fixed.")
+
     software_args = parser.add_argument_group("File Options", "Specify the filepath and the data file options")
 
     software_args.add_argument("--in_dir", type=str, default="Flash_Therapy/PET_3-5-23/",
-                               help="Filepath to find the input data files; defaults to Flash_Therapy/PET_3-5-23/.")
+                               help="Filepath to find the input data files; defaults to Flash_Therapy/PET_3-5-23/.=")
 
     software_args.add_argument("-d", "--data_file", type=str, default="MDA-Ni-10min-210mm-NoCu_coinc.dat",
                                help="Data file name to read in. Reset --in_dir if using a nonstandard location; default MDA-Ni-10min-210mm-NoCu_coinc.dat")
+
+    software_args.add_argument("-o", "--output_dir", type=str, default="./",
+                               help="Output directory to host images. By default, outputs images into the same directory as the fitting code.")
 
 
     args, remaining_argv = parser.parse_known_args()
