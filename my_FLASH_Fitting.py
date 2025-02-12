@@ -3,11 +3,11 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
+import pandas as pd # type: ignore
 from scipy.optimize import curve_fit
 import scipy as sp
-from iminuit import cost, Minuit
-import iminuit as im
+from iminuit import cost, Minuit # type: ignore
+import iminuit as im # type: ignore
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
 from channel_indices import indices
