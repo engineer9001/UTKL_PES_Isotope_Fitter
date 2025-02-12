@@ -10,15 +10,16 @@ from iminuit import cost, Minuit # type: ignore
 import iminuit as im # type: ignore
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
-from channel_indices import indices
-from fit_functions import * #As much as I hate using this syntax, this shouldn't be a problem as long as we always put new functions in fit_functions.py
-
 from math import log
 import sys, os
 import string
 import inspect
 import argparse
+
 from FLASH_Fitting_Command_Line_Args import parse_arguments
+from channel_indices import indices
+from fit_functions import * #As much as I hate using this syntax, this shouldn't be a problem as long as we always put new functions in fit_functions.py
+from SpillStartFinder import SpillStart
 
 ln2 = log(2)
 
@@ -92,7 +93,11 @@ df["GeoChannelIDR"] = df["ChannelIDR"].apply(toGeoChannelID)
 df["TimeL"] = df["TimeL"] / 1000000000000   #1E12   converting picoseconds to seconds presumably
 df["TimeR"] = df["TimeR"] / 1000000000000   #1E12 
 #Adjusting the time so the start time of the first spill is at 0:
-df["TimeL"] = df["TimeL"] - args.spill_time_start #44.66
+spill_time_start = args.spill_time_start
+if args.spill_time_start < 0.0:  #Have to assume that negative values of this are always invalid!
+    spill_time_start = SpillStart(df["TimeL"], args.spill_time_finder_window)
+
+df["TimeL"] = df["TimeL"] - spill_time_start #44.66
 
 #Total Process for fitting the data to 4 exponentials
 num_bins = args.num_bins
@@ -235,7 +240,7 @@ ax.legend(ncol=2, fontsize=25)
 
 # Set axis labels
 ax.set_ylabel(r'PET Event Rate [s$^{-1}$]', fontsize=25)
-ax.set_xlabel('Time [s]', fontsize=25)
+ax.set_xlabel('Time since Spill [s]', fontsize=25)
 plt.rcParams['figure.figsize'] = [fig_width, fig_height]
 
 # Adjust text positioning (doubling the line spacing for the fit result text)

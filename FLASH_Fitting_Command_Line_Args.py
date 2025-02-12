@@ -17,8 +17,11 @@ def parse_arguments():
 
     fit_args = parser.add_argument_group("Fit options", "Configure how the FLASH fitting is set up and run.")
 
-    fit_args.add_argument("--spill_time_start", type=float, default=39.9248759449842,
-                          help="Start of the spill time within the run (sec)")
+    fit_args.add_argument("--spill_time_start", type=float, default=-99999999.0,
+                          help="Start of the spill time within the run (sec); defaults to finding manually with spill-start finder")
+    
+    fit_args.add_argument("--spill_time_finder_window", type=float, default=0.0001,
+                          help="Time window to consider when trying to find the spill start time; defaults to 100 microseconds")
     
     fit_args.add_argument("-rl", "--run_length", type=float, default=600.0,
                          help="Length of the run in seconds; default 600s")
