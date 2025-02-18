@@ -1,6 +1,6 @@
 import numpy as np
 
-def SpillStart(event_time_array, window_size=0.0001):     #funciton that looks at list of event times and computer the maximum event rate over a sliding window returning the time window with the highest rate
+def SpillStart(event_time_array, window_size=0.1):     #funciton that looks at list of event times and computer the maximum event rate over a sliding window returning the time window with the highest rate
     print("Running spill time start finder.......") #Takes a bit to run
     event_time_array = np.array(event_time_array)
 
@@ -15,7 +15,7 @@ def SpillStart(event_time_array, window_size=0.0001):     #funciton that looks a
         if num_events > max_rate:
             max_rate = num_events
             max_event_rate_time = window_end    #Want to start the fitting at the end of the provided window
-    print(f'Max event rate in a {window_size*1000000} microsecond window found to be {max_rate/window_size} Hz')
+    print(f'Max event rate in a {window_size*1000} millisecond window found to be {max_rate/window_size} Hz')
     print(f"Spill start time found to be at {max_event_rate_time} seconds")
     return max_event_rate_time
 
