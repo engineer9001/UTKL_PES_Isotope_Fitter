@@ -20,7 +20,7 @@ def parse_arguments():
     fit_args.add_argument("--spill_time_start", type=float, default=-99999999.0,
                           help="Start of the spill time within the run (sec); defaults to finding manually with spill-start finder")
     
-    fit_args.add_argument("--spill_time_finder_window", type=float, default=0.0001,
+    fit_args.add_argument("--spill_time_finder_window", type=float, default=0.1,
                           help="Time window to consider when trying to find the spill start time; defaults to 100 microseconds")
     
     fit_args.add_argument("-rl", "--run_length", type=float, default=600.0,

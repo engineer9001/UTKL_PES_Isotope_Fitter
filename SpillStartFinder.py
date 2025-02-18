@@ -15,6 +15,7 @@ def SpillStart(event_time_array, window_size=0.1):     #funciton that looks at l
         if num_events > max_rate:
             max_rate = num_events
             max_event_rate_time = window_end    #Want to start the fitting at the end of the provided window
+    #print(window_size)
     print(f'Max event rate in a {window_size*1000} millisecond window found to be {max_rate/window_size} Hz')
     print(f"Spill start time found to be at {max_event_rate_time} seconds")
     return max_event_rate_time

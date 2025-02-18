@@ -10,7 +10,6 @@ from iminuit import cost, Minuit # type: ignore
 import iminuit as im # type: ignore
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
-from math import log
 import sys, os
 import string
 import inspect
@@ -18,10 +17,11 @@ import argparse
 
 from FLASH_Fitting_Command_Line_Args import parse_arguments
 from channel_indices import indices
-from fit_functions import * #As much as I hate using this syntax, this shouldn't be a problem as long as we always put new functions in fit_functions.py
+#from fit_functions import * #As much as I hate using this syntax, this shouldn't be a problem as long as we always put new functions in fit_functions.py
+from fit_params import Isotopes_Lifetimes_Dict
 from SpillStartFinder import SpillStart
 
-ln2 = log(2)
+ln2 = np.log(2)
 
 # plt.style.use('ChannelPairStyles.mplstyle')
 
@@ -175,17 +175,18 @@ ax.set_ylim(0, (max_bin_value + y_margin) * args.y_margin_adjust)
 # Create fit functions (same as before)
 fit_functions = []
 for func_name in args.fit_isotopes:
-    if func_name not in globals():
+    if func_name not in Isotopes_Lifetimes_Dict.keys():
         print(f"Function {func_name} not found in fit_functions.py")
         sys.exit(1)
-    fit_functions.append((func_name, globals()[func_name]))
+    fit_functions.append(func_name)
 
+#print(fit_functions)
 # Define the sum of functions for fitting (same as before)   This is done using black magic that I understood at one point
 def create_sum_function(fit_functions):
     param_names = string.ascii_uppercase[:len(fit_functions)]
 
     def sum_function(t, *amplitudes):
-        return sum(func(t, amp) for (_, func), amp in zip(fit_functions, amplitudes))
+        return sum(amp*np.exp(-t/Isotopes_Lifetimes_Dict[func]) for func, amp in zip(fit_functions, amplitudes))
 
     parameters = [
         inspect.Parameter("t", inspect.Parameter.POSITIONAL_OR_KEYWORD)
@@ -226,8 +227,8 @@ redChiSq = fitter.fval / (len(values) - len(initial_fit_params))
 
 # Plot each individual isotope function dynamically (ensure they're visible)
 for i, isotope in enumerate(args.fit_isotopes):
-    if isotope in globals():
-        fit_line = globals()[isotope](bin_centers, fitter.values[i])  # Use bin_centers for fit calculation
+    if isotope in Isotopes_Lifetimes_Dict.keys():
+        fit_line = fitter.values[i]*np.exp(-bin_centers/Isotopes_Lifetimes_Dict[isotope])  # Use bin_centers for fit calculation
         ax.plot(bin_centers, fit_line, linewidth=4, linestyle='dotted' if i % 2 == 0 else 'dashdot', label=isotope)
 
 
@@ -264,9 +265,9 @@ for i, isotope in enumerate(args.fit_isotopes):
             fontsize=20, transform=ax.transAxes)
 
     # T 1/2 
-    tau_var = f"tau_{isotope}"
-    if tau_var in globals():
-        half_life = globals()[tau_var] * np.log(2)
+
+    if isotope in Isotopes_Lifetimes_Dict.keys():
+        half_life = Isotopes_Lifetimes_Dict[isotope] * ln2
         ax.text(0.05, y_pos - 0.06,  # Offset to prevent overlap
                 fr"     T$_{{1/2}}$ (assumed) = {half_life:.3f} s ($^{{{isotope[isotope_number_start:]}}}${isotope[:isotope_number_start]})", 
                 fontsize=20, transform=ax.transAxes)
