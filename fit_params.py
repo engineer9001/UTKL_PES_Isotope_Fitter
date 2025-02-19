@@ -3,7 +3,7 @@
 #down to tossing everything in a big dictionary where the key will be the name fo the isotope,
 #and the value will be the mean lifetime in untis of seconds
 
-#ADDITIOANL ISOTOPES SHOULD BE ADDDED FOLLOWNG THIS FORMAT
+#ADDITIONAL ISOTOPES SHOULD BE ADDDED FOLLOWNG THIS FORMAT
 from numpy import log
 ln2 = log(2)
 
