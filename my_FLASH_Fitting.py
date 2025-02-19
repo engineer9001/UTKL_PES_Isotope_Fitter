@@ -228,7 +228,7 @@ if args.initial_fit_params  != [""]:
     initial_fit_params = args.initial_fit_params
 
 Fit_param_kwargs = ",".join(initial_fit_params)
-fitter = eval(f"Minuit(c, {Fit_param_kwargs})")
+fitter = eval(f"Minuit(c, {Fit_param_kwargs})")   #Not a great way to do this, but it works
 
 fitter.limits = [(0, None)] * len(fitter.values)
 fitter.migrad()
