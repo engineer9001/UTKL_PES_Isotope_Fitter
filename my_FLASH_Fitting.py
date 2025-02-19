@@ -86,7 +86,7 @@ if not os.path.exists(datafile_path):
     raise FileNotFoundError(f"Error: The file '{datafile_path}' does not exist.")
 
 if not os.path.exists(imgs_dir) and imgs_dir != "":
-    print("Output diretorry does not exist; making it now")
+    print("Output directory does not exist; making it now")
     os.makedirs(imgs_dir)
 
 #For showing ricardo the data run 1 was MidV1, run 2 was MidV2, and run3 was MaxV1
