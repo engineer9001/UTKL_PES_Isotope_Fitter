@@ -17,8 +17,8 @@ def parse_arguments():
 
     fit_args = parser.add_argument_group("Fit options", "Configure how the FLASH fitting is set up and run.")
 
-    fit_args.add_argument("--spill_time_start", type=float, default=-99999999.0,
-                          help="Start of the spill time within the run (sec); defaults to finding manually with spill-start finder")
+    fit_args.add_argument("--spill_time_end", type=float, default=-99999999.0,
+                          help="End of the spill time within the run (sec); defaults to finding manually with SpillTimeFinder")
     
     fit_args.add_argument("--spill_time_finder_window", type=float, default=0.1,
                           help="Time window to consider when trying to find the spill start time; defaults to 100 microseconds")
@@ -61,15 +61,18 @@ def parse_arguments():
     software_args.add_argument("-o", "--output_dir", type=str, default="./",
                                help="Output directory to host images. By default, outputs images into the same directory as the fitting code.")
 
+    software_args.add_argument("-dw", "--dont_write", type=bool, default=False,
+                               help="Flag to indicate whether to write the found spill start time to the config file; default is False")
 
     args, remaining_argv = parser.parse_known_args()
 
 
     if args.file:
-
+        filename = args.file      #workaround to get the filename accessible later
         config_args = parse_config_file(args.file[0])
         args = parser.parse_args(config_args + remaining_argv)  # Reparse with config options
 
+        args.file=filename          #reappend the filename into the code
     if len(args.initial_fit_params) != len(args.fit_isotopes) and args.initial_fit_params != [""]:
         print("Number of initial fit parameters guesses must match the number of isotopes to fit!")
         sys.exit(1)
