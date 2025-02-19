@@ -4,8 +4,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd # type: ignore
-from scipy.optimize import curve_fit
-import scipy as sp
+#from scipy.optimize import curve_fit
+#import scipy as sp
 from iminuit import cost, Minuit # type: ignore
 import iminuit as im # type: ignore
 from matplotlib.patches import Patch
@@ -101,7 +101,7 @@ if args.spill_time_end < 0.0:  #Have to assume that negative values of this are 
     if not args.dont_write and args.file !=None:
         config_filepath = args.file[0]
         with open(config_filepath, 'a') as file:
-            file.write(f"\n--spill_time_end {spill_time_end} #Added by spill time start finder algorithm")  #don't recalculate the spill time start every time
+            file.write(f"\n--spill_time_end {spill_time_end} #Added by spill time finder algorithm")  #don't recalculate the spill time start every time
             print("Spill time start written to config file")
 
 
