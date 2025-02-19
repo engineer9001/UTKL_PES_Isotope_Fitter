@@ -79,13 +79,18 @@ def halferror(x,xerr):
 
 file_name = args.data_file
 dir = args.in_dir
+datafile_path = dir+file_name
 imgs_dir = args.output_dir + "/"   #Add trailing slash so that it doens't matter if use provides it or not
 
+if not os.path.exists(datafile_path):
+    raise FileNotFoundError(f"Error: The file '{datafile_path}' does not exist.")
+
 if not os.path.exists(imgs_dir) and imgs_dir != "":
+    print("Output diretorry does not exist; making it now")
     os.makedirs(imgs_dir)
 
 #For showing ricardo the data run 1 was MidV1, run 2 was MidV2, and run3 was MaxV1
-df = pd.read_csv(dir+file_name, delimiter="\t", usecols=(2,3,4,7,8,9))
+df = pd.read_csv(datafile_path, delimiter="\t", usecols=(2,3,4,7,8,9))
 df.columns = ["TimeL", "ChargeL", "ChannelIDL", "TimeR", "ChargeR", "ChannelIDR"]
 
 df["GeoChannelIDL"] = df["ChannelIDL"].apply(toGeoChannelID)
