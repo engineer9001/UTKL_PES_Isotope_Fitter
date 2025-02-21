@@ -40,7 +40,7 @@ Isotopes_Lifetimes_Dict = {
     "Zn60": tau_Zn60,
     "Zn61": tau_Zn61,
     "Zn63": tau_Zn63,
-    "Co54m": tau_Co54m
+    "Co54m": tau_Co54m,
     "C10": tau_C10,
     "C11": tau_C11,
     "N13": tau_N13,
