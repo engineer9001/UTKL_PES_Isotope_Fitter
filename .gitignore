@@ -1,0 +1,11 @@
+# Ignore all files in config
+configs/
+
+# Ignore all files in data
+data/
+
+# Ignore all files in images
+images/
+
+# Ignore python cache files
+__pycache__/
