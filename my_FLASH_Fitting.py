@@ -83,7 +83,9 @@ datafile_path = dir+file_name
 imgs_dir = args.output_dir + "/"   #Add trailing slash so that it doens't matter if use provides it or not
 
 if not os.path.exists(datafile_path):
-    raise FileNotFoundError(f"Error: The file '{datafile_path}' does not exist.")
+    datafile_path = os.path.dirname(__file__) + datafile_path
+    if not os.path.exists(datafile_path):
+        raise FileNotFoundError(f"Error: The file '{datafile_path}' does not exist.")
 
 if not os.path.exists(imgs_dir) and imgs_dir != "":
     print("Output directory does not exist; making it now")
