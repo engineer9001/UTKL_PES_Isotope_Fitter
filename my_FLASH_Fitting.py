@@ -161,6 +161,8 @@ values, bins, parameters = ax.hist(t, bins=new_num_bins, label='PET Data', alpha
 values = np.array(values)
 bins = np.array(bins)
 bin_centers = 0.5 * (bins[1:] + bins[:-1])
+plot_values = np.linspace(min(bin_centers), max(bin_centers), num=25*len(bin_centers))
+
 
 # Find the maximum value of the histogram
 max_bin_value = np.max(values)
@@ -241,13 +243,13 @@ redChiSq = fitter.fval / (len(values) - len(initial_fit_params))
 # Plot each individual isotope function dynamically (ensure they're visible)
 for i, isotope in enumerate(args.fit_isotopes):
     if isotope in Isotopes_Lifetimes_Dict.keys():
-        fit_line = fitter.values[i]*np.exp(-bin_centers/Isotopes_Lifetimes_Dict[isotope])  # Use bin_centers for fit calculation
-        ax.plot(bin_centers, fit_line, linewidth=4, linestyle='dotted' if i % 2 == 0 else 'dashdot', label=isotope)
+        fit_line = fitter.values[i]*np.exp(-plot_values/Isotopes_Lifetimes_Dict[isotope])  # Use bin_centers for fit calculation
+        ax.plot(plot_values, fit_line, linewidth=4, linestyle='dotted' if i % 2 == 0 else 'dashdot', label=isotope)
 
 
 # Plot the sum function with more visibility (adjust line width and color if necessary)
-sum_fit_line = fit_function(bin_centers, *fitter.values)
-ax.plot(bin_centers, sum_fit_line, linewidth=4, color="r", alpha=0.7, label="Sum")
+sum_fit_line = fit_function(plot_values, *fitter.values)
+ax.plot(plot_values, sum_fit_line, linewidth=4, color="r", alpha=0.7, label="Sum")
 
 # Set legend
 ax.legend(ncol=2, fontsize=25)
