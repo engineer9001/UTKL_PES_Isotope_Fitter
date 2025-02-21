@@ -4,6 +4,9 @@ def SpillTime(event_time_array, window_size=0.1):     #funciton that looks at li
     print("Running spill time finder.......") #Takes a bit to run
     event_time_array = np.array(event_time_array)
 
+    hysteresis_high = 0.9  #The high and low hysteresis as a fraction of the global max PET event rate we use to discriminate spills
+    hysteresis_low = 0.7
+
     max_rate = -999999.0
     min_rate = 999999999.0
     max_event_rate_time = None
@@ -32,8 +35,8 @@ def SpillTime(event_time_array, window_size=0.1):     #funciton that looks at li
             final_spill_max_rate = num_events
             final_spill_end_time = window_end
 
-        if final_spill_max_rate > 0.9 * max_rate and num_events < 0.7 * max_rate:   #Scanning from the end of the file, if your workign max is over 90% the global max rate, and the working rate is < 70% the global max, stop scanning and you should only be looking at the time of the final spill. These percentages may need to be tuned
-            break
+        if final_spill_max_rate > hysteresis_high * max_rate and num_events < hysteresis_low * max_rate:   #Scanning from the end of the file, if your workign max is over 90% the global max rate, and the working rate is < 70% the global max, stop scanning and you should only be looking at the time of the final spill. These percentages may need to be tuned
+            break  #once we're sure we've found a peak, and we're sure we've passed it's max, stop scanning
         
     #print(window_size)
     print(f'Max event rate in a {window_size*1000} millisecond window found to be {max_rate/window_size} Hz')
