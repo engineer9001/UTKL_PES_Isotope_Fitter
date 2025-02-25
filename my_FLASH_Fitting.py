@@ -154,7 +154,10 @@ if args.create_first_plot:
 # Set figure size (width, height)
 fig_width = 20
 fig_height = 9
-fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+fig, (ax, ax_residuals) = plt.subplots(2, 1, gridspec_kw={'height_ratios': [4, 1]}, figsize=(fig_width, fig_height), sharex=True)
+
+# Remove space between the plots so they touch
+plt.subplots_adjust(hspace=0)
 
 # Create the histogram
 t = df["TimeL"][df["TimeL"] >= 1] - min(df["TimeL"][df["TimeL"] >= 1])
@@ -253,6 +256,23 @@ for i, isotope in enumerate(args.fit_isotopes):
 sum_fit_line = fit_function(plot_values, *fitter.values)
 ax.plot(plot_values, sum_fit_line, linewidth=4, color="r", alpha=0.7, label="Sum")
 
+plt.tick_params(axis='both', which='major', labelsize=20)
+
+fit_values_at_bin_centers = fit_function(bin_centers, *fitter.values)
+residuals = values - fit_values_at_bin_centers
+residual_errors = np.sqrt(values)
+
+# Residuals plot
+ax_residuals.axhline(0, color='black', linewidth=1, linestyle='dashed')  # Zero reference line
+ax_residuals.errorbar(bin_centers, residuals, yerr=residual_errors, fmt='.', color='black', capsize=4, elinewidth=1.5)
+ax_residuals.set_ylabel("Residuals\n(Data - Fit)", fontsize=16)
+
+ax.tick_params(labelbottom=False)
+# Set the x-axis label below the residuals plot
+ax_residuals.set_xlabel('Time from Spill End [s]', fontsize=25)
+
+ax.yaxis.set_tick_params(labelsize=20)
+ax_residuals.yaxis.set_tick_params(labelsize=16)
 # Set legend
 ax.legend(ncol=2, fontsize=25)
 
@@ -264,7 +284,7 @@ plt.rcParams['figure.figsize'] = [fig_width, fig_height]
 # Adjust text positioning (doubling the line spacing for the fit result text)
 text_y_offset_factor = 0.10  # Double the spacing from before (previously was 0.05)
 y_start = 0.95  # Initial position for first isotope label
-y_step = 0.11   # Increased spacing between isotope labels
+y_step = 0.12   # Increased spacing between isotope labels
 
 for i, isotope in enumerate(args.fit_isotopes):
     y_pos = y_start - i * y_step  # Double the spacing
@@ -295,7 +315,7 @@ title_y = reduced_chi2_y - 0.08
 ax.text(0.05, reduced_chi2_y, fr"reduced $\chi^{{2}}$ = {redChiSq:.3f}", fontsize=20, transform=ax.transAxes)
 
 # Title annotation
-ax.text(0.05, title_y, args.run_config.replace("_", " "), fontsize=35, transform=ax.transAxes)
+ax.text(0.05, title_y, args.run_config.replace("_", " "), fontsize=32, transform=ax.transAxes)
 
 # Set x-axis limits
 
@@ -303,7 +323,7 @@ ax.set_xlim(0, max(bins) * 1.01) #go 1% past the last bin
 if args.run_end_time > 0.0:
     ax.set_xlim(0, args.run_end_time)
 
-plt.tick_params(axis='both', which='major', labelsize=20)
+
 
 # Save the plot with dynamic fit name
 fit_name = "_".join(args.fit_isotopes)
