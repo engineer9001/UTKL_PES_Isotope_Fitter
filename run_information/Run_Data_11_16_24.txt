@@ -1,0 +1,40 @@
+#Spill Times (in seconds)
+#11-16-24
+#Run 1: MiniPET PMMA 3mm_Collimator 15m
+.1014
+
+#Run 2: MiniPET PMMA 2/4/8mm_Collimator 15m
+.1020
+
+#Run 3: MiniPET PMMA 1/2/3mm_Collimator 15m
+.1010
+
+#Run 4: MiniPET PMMA No_Collimator 15m
+.1017
+
+#Run 5: MiniPET PMMA#1 Full_Collimator 15m
+.1016
+
+#Run 6: MiniPET PMMA#2 Full_Collimator 15m
+.1015
+
+#Run 7: MiniPET PMMA#4 Cross_Collimator 15m
+.1019
+
+#Run 8: MiniPET Methylene_Blue No_Collimator 5_Compartments 15m
+.1008
+
+#Run 9: MiniPET Boneless_Chicken_Breast No_Collimator 15m
+.1015
+
+#Run 10: MiniPET SPECT PMMA#3 Tungsten_Collimator 5m
+.1015
+
+#Run 11: MiniPET SPECT PMMA#3 Tungsten_Collimator 10m
+.1017
+
+#Run 12: TPPT PMMA 1" #1 No_Collimator 15m
+.1016
+
+#Run 13: TPPT PMMA 2/4/8" No_Collimator 15m
+.1017

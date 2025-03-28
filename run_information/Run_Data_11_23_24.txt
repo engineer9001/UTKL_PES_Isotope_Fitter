@@ -1,0 +1,41 @@
+#Time in seconds
+#11-23-24 (multiple spills)
+#Run 1: MiniPET SPECT PMMA#3 Tungsten_Collimator Downstream Mirrored 10m
+.1017, .1013, .1015, .1011, .1017
+#delta spill times from start (estimates)
+30, 110, 190, 270, 365
+
+#Run 2: MiniPET SPECT PMMA#3 38.1mm Tungsten_Collimator Upstream Mirrored 10m
+.1016, .1017, .1014, .1015, .1016
+#delta spill times from start (estimates)
+30, 120, 190, 270, 350
+
+#Run 3: MiniPET SPECT PMMA#3 38.1mm Tungsten_Collimator Upstream Mirrored Partial_Block 10m
+.1017, .1011, .1016, .1017, .1013
+#delta spill times from start (estimates)
+30, 110, 185, 250, 330
+
+#Run 4: TPPT Empty PMMA#0 1.5" No_Collimator 10m
+.1016
+
+#Run 5: TPPT PMMA#1 1.5" No_Collimator 15m
+.1016
+
+#Run 6: TPPT PMMA#2 1.5" 3mm_Collimator 15m 30shots
+#Shot 30 times, 2s between shots
+
+#Run 7: TPPT PMMA#3 1.5" 2/4/8mm_Collimator 15m 30shots
+#Shot 30 times, 2s between shots
+
+#Run 8: TPPT PMMA#3 1.5" 2/4/8mm_Collimator 15m 30shots
+#Redid run 7
+#Some spills before DAQ started
+
+#Run 9: TPPT PMMA 3mm No_Collimator 30mm_opening 15m 30shots
+#Shot 30 times, 2s between shots
+
+#Run 10: TPPT PMMA 2/4/8mm No_Collimator 30mm_opening 15m 30shots
+#Shot 30 times, 2s between shots
+
+#Run 11: TPPT PMMA#4 Delta6_Collimator 15m 30shots
+#Shot 30 times, 2s between shots
