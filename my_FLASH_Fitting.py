@@ -262,9 +262,14 @@ fit_values_at_bin_centers = fit_function(bin_centers, *fitter.values)
 residuals = values - fit_values_at_bin_centers
 residual_errors = np.sqrt(values)
 
+# Normalize residuals for plot
+normalization_factor = np.sqrt(np.sum(residuals**2))
+norm_residuals = residuals / normalization_factor
+norm_residual_errors = residual_errors / normalization_factor
+
 # Residuals plot
 ax_residuals.axhline(0, color='black', linewidth=1, linestyle='dashed')  # Zero reference line
-ax_residuals.errorbar(bin_centers, residuals, yerr=residual_errors, fmt='.', color='black', capsize=4, elinewidth=1.5)
+ax_residuals.errorbar(bin_centers, norm_residuals, yerr=norm_residual_errors, fmt='.', color='black', capsize=4, elinewidth=1.5)
 ax_residuals.set_ylabel("Residuals\n(Data - Fit)", fontsize=16)
 
 ax.tick_params(labelbottom=False)
