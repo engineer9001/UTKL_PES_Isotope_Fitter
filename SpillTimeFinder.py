@@ -1,8 +1,9 @@
 import numpy as np
+from tqdm import tqdm
 
 def SpillTime(event_time_array, window_size=0.1):     #funciton that looks at list of event times and computer the maximum event rate over a sliding window returning the time window with the highest rate
     print("Running spill time finder.......") #Takes a bit to run
-    event_time_array = np.array(event_time_array)
+    #event_time_array = np.delete(event_time_array, np.where(event_time_array<=60)) #Check only the first 60 seconds for spills
 
     hysteresis_high = 0.9  #The high and low hysteresis as a fraction of the global max PET event rate we use to discriminate spills
     hysteresis_low = 0.7
@@ -10,8 +11,8 @@ def SpillTime(event_time_array, window_size=0.1):     #funciton that looks at li
     max_rate = -999999.0
     min_rate = 999999999.0
     max_event_rate_time = None
-    
-    for i in range(len(event_time_array)):
+
+    for i in tqdm(range(len(event_time_array))):
         window_start = event_time_array[-i]
         window_end = window_start + window_size         #window size is the size in seconds; Guessing we should look on the order of ~100 microseconds
         num_events = np.sum((event_time_array >= window_start) & (event_time_array < window_end))
@@ -26,7 +27,7 @@ def SpillTime(event_time_array, window_size=0.1):     #funciton that looks at li
     final_spill_max_rate = -999999.0
     final_spill_end_time = None
 
-    for i in range(len(event_time_array)):
+    for i in tqdm(range(len(event_time_array))):
         window_start = event_time_array[-i]
         window_end = window_start + window_size         #window size is the size in seconds; Guessing we should look on the order of ~100 microseconds
         num_events = np.sum((event_time_array >= window_start) & (event_time_array < window_end))
@@ -37,7 +38,7 @@ def SpillTime(event_time_array, window_size=0.1):     #funciton that looks at li
 
         if final_spill_max_rate > hysteresis_high * max_rate and num_events < hysteresis_low * max_rate:   #Scanning from the end of the file, if your workign max is over 90% the global max rate, and the working rate is < 70% the global max, stop scanning and you should only be looking at the time of the final spill. These percentages may need to be tuned
             break  #once we're sure we've found a peak, and we're sure we've passed it's max, stop scanning
-        
+
     #print(window_size)
     print(f'Max event rate in a {window_size*1000} millisecond window found to be {max_rate/window_size} Hz')
     print(f"Final spill's max event rate in a {window_size*1000} millisecond window found to be {final_spill_max_rate/window_size} Hz")
