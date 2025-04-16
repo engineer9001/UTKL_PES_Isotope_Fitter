@@ -14,6 +14,8 @@ import sys, os
 import string
 import inspect
 import argparse
+from scipy.signal import medfilt
+from scipy.interpolate import interp1d
 
 from FLASH_Fitting_Command_Line_Args import parse_arguments
 from channel_indices import indices
@@ -71,6 +73,31 @@ def chiSq(o,e):
 def halferror(x,xerr):
     return ln2*x * xerr/x
 
+def fill_valleys(signal, kernel_size=21, threshold=0.6):
+    """
+    Fill valleys (artificial dips) in a 1D signal based on deviation from local median.
+    Parameters:
+        signal (np.ndarray): 1D array of counts (e.g. intensity values per time bin).
+        kernel_size (int): Size of the median filter window (must be odd).
+        threshold (float): Fractional drop from the local median to identify valleys.
+                           E.g., 0.6 means "dip below 60% of local median".
+    Returns:
+        np.ndarray: The signal with valleys filled via linear interpolation.
+    """
+    if kernel_size % 2 == 0:
+        raise ValueError("kernel_size must be odd")
+    signal = np.asarray(signal)
+    local_median = medfilt(signal, kernel_size=kernel_size)
+    is_valley = signal < (local_median * threshold)
+    # Indices for interpolation
+    x = np.arange(len(signal))
+    valid_mask = ~is_valley
+    # Interpolate only where data is invalid (valleys)
+    interp_fn = interp1d(x[valid_mask], signal[valid_mask], kind='linear', fill_value="extrapolate")
+    filled_signal = signal.copy()
+    filled_signal[is_valley] = interp_fn(x[is_valley])
+    return filled_signal
+
 
 # ## fit to background
 # 
@@ -92,8 +119,8 @@ if not os.path.exists(imgs_dir) and imgs_dir != "":
     os.makedirs(imgs_dir)
 
 #For showing ricardo the data run 1 was MidV1, run 2 was MidV2, and run3 was MaxV1
-df = pd.read_csv(datafile_path, delimiter="\t", usecols=(2,3,4,7,8,9))
-df.columns = ["TimeL", "ChargeL", "ChannelIDL", "TimeR", "ChargeR", "ChannelIDR"]
+df = pd.read_csv(datafile_path, delimiter="\t", usecols=(args.use_columns))
+df.columns = args.column_names
 
 df["GeoChannelIDL"] = df["ChannelIDL"].apply(toGeoChannelID)
 df["GeoChannelIDR"] = df["ChannelIDR"].apply(toGeoChannelID)
@@ -101,11 +128,10 @@ df["TimeL"] = df["TimeL"] / 1000000000000   #1E12   converting picoseconds to se
 df["TimeR"] = df["TimeR"] / 1000000000000   #1E12 
 #Adjusting the time so the start time of the first spill is at 0:
 
-
 spill_time_end = args.spill_time_end
 if args.spill_time_end < 0.0:  #Have to assume that negative values of this are always invalid!
     spill_time_end = SpillTime(df["TimeL"], args.spill_time_finder_window)
-    if not args.dont_write and args.file !=None:
+    if not args.dont_write and args.file !=None and spill_time_end !=0:
         config_filepath = args.file[0]
         with open(config_filepath, 'a') as file:
             file.write(f"\n--spill_time_end {spill_time_end} #Added by spill time finder algorithm")  #don't recalculate the spill time start every time
@@ -124,6 +150,8 @@ if args.create_first_plot:
     #fitting the background to a constant and then subtracting it from the data for scaling purposes
     values,bins,params = plt.hist(df["TimeL"], bins=num_bins, fill=False, ec="C0")
     values = np.array(values)
+    if args.valleys:
+        values = fill_valleys(values)
     bins = np.array(bins)
     bin_centers = 0.5*(bins[1:] + bins[:-1])
 
@@ -164,6 +192,8 @@ t = df["TimeL"][df["TimeL"] >= 1] - min(df["TimeL"][df["TimeL"] >= 1])
 new_num_bins = int((max(t) - min(t)) / binwidth)
 values, bins, parameters = ax.hist(t, bins=new_num_bins, label='PET Data', alpha=0.8)
 values = np.array(values)
+if args.valleys:
+    values = fill_valleys(values)
 bins = np.array(bins)
 bin_centers = 0.5 * (bins[1:] + bins[:-1])
 plot_values = np.linspace(min(bin_centers), max(bin_centers), num=25*len(bin_centers))
