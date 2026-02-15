@@ -35,6 +35,9 @@ def parse_arguments():
     fit_args.add_argument("-n", "--num_bins", type=int, default=100,
                           help="Number of bins to use in NAME OF PLOT; default 100")
     
+    fit_args.add_argument("-binw", "--bin_width", type=int, default=5,
+                          help="Width of each bin; default 5")
+    
     fit_args.add_argument("-ff", "--fit_function", type=str, default="",
                           help="Function to fit the data to. Prefer to specify isotopes, and only use this if you need to avoid that; default to empty string")
     
@@ -59,6 +62,27 @@ def parse_arguments():
     fit_args.add_argument("--valleys", type=bool, default=False,
                           help="Fills in the valleys of mechanical errors in data collection.")
 
+    fit_args.add_argument("--previous_run_isotopes", type=parse_comma_separated_list, default=None,
+                        help="Comma-separated list of isotope names from the PREVIOUS run.")
+
+    fit_args.add_argument("--previous_run_amplitudes", type=parse_comma_separated_list, default=None,
+                        help="Comma-separated list of fitted amplitudes (A, B, C...) from the PREVIOUS run.")
+
+    fit_args.add_argument("--time_since_previous_run", type=float, default=0.0,
+                        help="Time in seconds between the end of the previous run and the start of the current run.")
+
+    fit_args.add_argument("--previous_run_amplitude_uncertainties", type=parse_comma_separated_list, default=None,
+                        help="Comma-separated list of statistical uncertainties corresponding to --previous_run_amplitudes.")
+
+    fit_args.add_argument("--fixed_background_rate", type=float, default=-1.0,
+                        help="Fixed pre-spill background event rate [s^-1]. If < 0, compute automatically from data using a forward hysteresis scan.")
+
+    fit_args.add_argument("--fixed_background_rate_uncertainty", type=float, default=-1.0,
+                        help="Statistical uncertainty of the fixed background event rate [s^-1].")
+
+    fit_args.add_argument("--post_spill_guard", type=float, default=0.0,
+                        help="Ignore data within this many seconds after the spill end (useful to skip very high initial rates).")
+
     software_args = parser.add_argument_group("File Options", "Specify the filepath and the data file options")
 
     software_args.add_argument("--in_dir", type=str, default="Flash_Therapy/PET_3-5-23/",
@@ -72,7 +96,25 @@ def parse_arguments():
 
     software_args.add_argument("-dw", "--dont_write", type=bool, default=False,
                           help="Flag to indicate whether to write the found spill start time to the config file; default is False")
-
+    
+    software_args.add_argument("-g", "--geometry_path", type=str, default="None",
+                               help="Path to the scanner geometry file that will be used to only anzlyze coincidences from certain rows of the scanner")
+    
+    software_args.add_argument("-c", "--coord_axis", type=str, default="z",
+                               help="What axis to segment the scanner by either 'x', 'y', or 'z'; default is z")
+    
+    software_args.add_argument("-group", "--group_size", type=int, default=-1,
+                               help="Group in geometry -1 for 0 groups")
+    
+    software_args.add_argument("-t", "--title", type=str, default="plot",
+                               help="title of produced plots")
+    
+    software_args.add_argument("-off", "--offset", type=int, default=0,
+                               help="title of produced plots")
+    
+    software_args.add_argument("-pre", "--pre_dir", type=str, default='/home/michaelgajda/thesis_work/mini_pre_spill',
+                               help="directory of the prespill data")
+    
     args, remaining_argv = parser.parse_known_args()
 
 
@@ -85,6 +127,17 @@ def parse_arguments():
     if len(args.initial_fit_params) != len(args.fit_isotopes) and args.initial_fit_params != [""]:
         print("Number of initial fit parameters guesses must match the number of isotopes to fit!")
         sys.exit(1)
+        
+    if args.previous_run_amplitudes is not None:
+        if args.previous_run_isotopes is None or args.time_since_previous_run == 0.0:
+            print("Error: If --previous_run_amplitudes is provided, you must also provide --previous_run_isotopes and a non-zero --time_since_previous_run.")
+            sys.exit(1)
+        if len(args.previous_run_amplitudes) != len(args.previous_run_isotopes):
+            print("Error: The number of previous run amplitudes must match the number of previous run isotopes.")
+            sys.exit(1)
+        if args.previous_run_amplitude_uncertainties is not None and len(args.previous_run_amplitude_uncertainties) != len(args.previous_run_amplitudes):
+            print("Error: The number of previous run amplitude uncertainties must match the number of amplitudes.")
+            sys.exit(1)
     return args
 
 #End of parse_arguments()
